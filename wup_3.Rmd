@@ -1,7 +1,7 @@
 ---
 title: "Alcohol vs Seat choice"
-author: "Your Name"
-date: "Fall 2020"
+author: "Julian Garcia"
+date: "Fall 2026"
 output: html_document
 ---
 
@@ -12,33 +12,56 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r include=FALSE}
 require(tidyverse)
 require(tigerstats)
+
 davisdata <- read.csv(file="UCDavis.csv")
+data=davisdata
 ```
-## Our Goal is to answer this question Is there a difference between the alcohol consumed between the row
-## you choose to sit in??
+ Our Goal is to answer this question Is there a difference between the alcohol consumed between the row you choose to sit in??
 
-## Now with ggplot - first select the basic data
+# Introduction 
+Is there a relationship between the alcohol you consume and the row you choose to sit in?  Data from UCDavis math 116 class
 
+$H_0$: There is no difference in the average alcohol consumption between students who sit in the front, middle, or back rows.  
+$H_A$: At least one seating group has a different average alcohol consumption compared to the others.
+
+
+# Methods
+seat is categorical  
+alcohol is numerical  
+
+
+# Data summaries
+This section compares alcohol consumption between students who sit in the front, middle, and back rows.
+## Boxplot data
 ```{r}
-basicCN <- ggplot(davisdata,aes(y=alcohol,x=Seat))
+boxplot(alcohol~Seat,data=davisdata)
 ```
-## Now add in boxplot
 
-```{r}
-basicCN + geom_boxplot()
-```
-  
-  
-### get fancy  
+Looking at the boxplot, we can see that students who sit in the back generally consume more alcohol compared to students sitting in the middle or front. The back row also has a much bigger spread in the data, meaning alcohol consumption varies more among those students. The middle and front rows seem to have lower alcohol consumption overall, although there are a few outliers in each group. Based on the graph, it looks like there could be a difference in alcohol consumption depending on where students sit, but we would need to run a statistical test to see if that difference is actually significant.
 
-```{r}
-basicCN + geom_boxplot(notch=TRUE,outlier.color = "red") + stat_boxplot(geom ='errorbar') + labs(title="Fancy notch boxplot \n with 2 lines")
-```
 
 ## Numerical Summarys 
+```{r}
+favstats(alcohol~Seat,data=ucdavis1)
+```
+
+Looking at the numerical summary, students who sit in the back row seem to consume more alcohol compared to students in the front and middle rows. The back row has the highest median of 3.5, while the middle has 1.0 and the front has 0. The back row also has the highest maximum of 55, compared to 35 in the middle and 20 in the front. This shows that students sitting in the back generally drink more and have a bigger spread in alcohol consumption. However, we still need to run a statistical test to see if these differences are significant.
 
 ## Inferential Tests
 
-## Conclusions
+```{r}
+model1 <- aov(alcohol~Seat,data=davisdata)
+summary.aov(model1)
+```
+Based on the ANOVA test, the p-value is 0.000116, which is less than 0.05. This means we reject the null hypothesis and conclude that there is a significant difference in average alcohol consumption between at least two of the seating groups.
 
+```{r}
+plot(TukeyHSD(model1))
+```
+
+
+The Tukey graph shows there is a difference in alcohol consumption between students who sit in the front, middle and back. There is no difference in alcohol consumption between the front and middle rows
+
+## Conclusions
+The question was if there was a difference in the amount of alcohol consumed depending on where students choose to sit. Based on the ANOVA test, the p-value was 0.000116, which is less than 0.05, so we reject the null hypothesis. This means there is a statistically significant difference in average alcohol consumption between at least two seating groups. Looking at the boxplot and numerical summary, students in the back generally consumed more alcohol compared to students in the front and middle. Overall, the results suggest that alcohol consumption differs depending on where students sit, but this does not mean that sitting in a certain row causes someone to drink more.
 
